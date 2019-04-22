@@ -25,8 +25,8 @@ function P2P(queueName, url) {
 
             p2pConn = conn;
             p2pChannel = channel;
-        };
-    };
+        });
+    });
 
     this.p2pConn = p2pConn;
     this.p2pChannel = p2pChannel;
