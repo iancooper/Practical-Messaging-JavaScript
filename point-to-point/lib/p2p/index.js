@@ -6,8 +6,7 @@ const exchangeName = "";  //we use the default exchange where routing key is key
 
 function P2P(queueName, url) {
 
-    let p2pConn = null;
-    let p2pChannel = null;
+    let that = this;
     amqp.connect(url, function(err, conn) {
         if (err) {
             console.error("[AMQP]", err.message);
@@ -23,14 +22,10 @@ function P2P(queueName, url) {
             channel.assertQueue(queueName, {durable: false, exclusive: false, autoDelete:false});
             channel.assertBind(queueName, exchangeName);
 
-            p2pConn = conn;
-            p2pChannel = channel;
+            that.p2pConn = conn;
+            that.p2pChannel = channel;
         });
     });
-
-    this.p2pConn = p2pConn;
-    this.p2pChannel = p2pChannel;
-    this.routingKey = queueName;
 }
 
 module.exports.P2P = P2P;
