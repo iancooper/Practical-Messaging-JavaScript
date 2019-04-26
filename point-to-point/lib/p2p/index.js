@@ -62,7 +62,6 @@ P2P.prototype.afterChannelOpened = function(cb){
             }, 500);
         });
     });
-
 }
 
 
