@@ -9,9 +9,9 @@ const p2pChannel = new p2pLib.P2P("hello-p2p", "amqp://guest:guest@localhost:567
 console.log("Preparing to send message to consumers");
 
 p2pChannel.afterChannelOpened(function(channel){
-    p2pChannel.send(channel,"Hello World", function(){
-        console.log("Message sent!");
-        done = true;
+    p2pChannel.receive(channel, function(msg){
+        console.log('Received Msg: %s', msg.content.toString());
+        done  = true;
     })
 });
 
@@ -19,5 +19,3 @@ p2pChannel.afterChannelOpened(function(channel){
 (function wait () {
     if (!done) setTimeout(wait, 1000);
 })();
-
-
