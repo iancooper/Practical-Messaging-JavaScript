@@ -2,20 +2,10 @@
 
 var amqp = require('amqplib/callback_api');
 
-const exchangeName = "practical-messaging-p2p";  //we use the default exchange where routing key is key name to emulate a point-to-point channel
+const exchangeName = "practical-messaging-datatype";
 
-//queueName - the name of the queue we want to create, which ia also the routing key in the default exchange
-//url - the amqp url for the rabbit broker, must begin with amqp or amqps
-function P2P(queueName, url) {
-    this.queueName = queueName;
-    this.brokerUrl = url;
-}
-
-module.exports.P2P = P2P;
-
-//cb - the callback to send or receive
-P2P.prototype.afterChannelOpened = function(cb){
-    me = this;
+var afterChannelOpened  = function(cb){
+    var me = this;
     amqp.connect(me.brokerUrl, function(err, conn) {
         if (err) {
             console.error("[AMQP]", err.message);
@@ -34,10 +24,10 @@ P2P.prototype.afterChannelOpened = function(cb){
                     console.error("AMQP", err.message);
                     throw err;
                 }
-                
+
             });
 
-            channel.assertQueue(me.queueName, {durable: false, exclusive: false, autoDelete:false}, function(err,ok){
+            channel.assertQueue(me.queueName, {durable: true, exclusive: false, autoDelete:false}, function(err,ok){
                 if (err){
                     console.error("AMQP", err.message);
                     throw err;
@@ -45,16 +35,16 @@ P2P.prototype.afterChannelOpened = function(cb){
 
             });
 
-            //if we had used the default exchange, we always have a routing key equal to queue name,
-            //which would be a more idiomatic way of representing point-to-point
             channel.bindQueue(me.queueName, exchangeName, me.queueName, {}, function(err, ok){
                 if (err){
                     console.error("AMQP", err.message);
                     throw err;
                 }
+                else{
+                    cb(channel);
+                }
             });
 
-            cb(channel);
 
             setTimeout(function() {
                 channel.close();
@@ -64,12 +54,27 @@ P2P.prototype.afterChannelOpened = function(cb){
     });
 };
 
+//queueName - the name of the queue we want to create, which ia also the routing key in the default exchange
+//url - the amqp url for the rabbit broker, must begin with amqp or amqps
+//serialize - serialize objects of a given type to the message body (in a dynamic language that can see a little pointless)
+function Producer(queueName, url, serialize) {
+    this.queueName = queueName;
+    this.brokerUrl = url;
+    this.serialize = serialize;
+}
+
+module.exports.Producer = Producer;
+
+//cb - the callback to send or receive
+Producer.prototype.afterChannelOpened = afterChannelOpened;
+
 
 //channel - the RMQ channel to make requests on
 //message - the data to serialize
 //cb a callback indicating success or failure
-P2P.prototype.send = function(channel, message, cb){
-    channel.publish(exchangeName, this.queueName, Buffer.from(message), {}, function(err,ok){
+Producer.prototype.send = function(channel, request, cb){
+    var me = this;
+    channel.publish(exchangeName, this.queueName, Buffer.from(me.serialize(request)), {}, function(err,ok){
        if (err){
             console.error("AMQP", err.message);
             throw err;
@@ -78,9 +83,23 @@ P2P.prototype.send = function(channel, message, cb){
     });
 };
 
+//queueName - the name of the queue we want to create, which ia also the routing key in the default exchange
+//url - the amqp url for the rabbit broker, must begin with amqp or amqps
+function Consumer(queueName, url, deserialize) {
+    this.queueName = queueName;
+    this.brokerUrl = url;
+    this.deserialize = deserialize;
+}
+
+module.exports.Consumer = Consumer;
+
+//cb - the callback to send or receive
+Consumer.prototype.afterChannelOpened = afterChannelOpened;
+
 //channel - the RMQ channel to make requests on
 //cb a callback indicating success or failure
-P2P.prototype.receive = function(channel, cb){
+Consumer.prototype.receive = function(channel, cb){
+    var me = this;
     channel.get(this.queueName, {noAck:true}, function(err, msgOrFalse){
         if(err){
             console.error("AMQP", err.message);
@@ -89,7 +108,8 @@ P2P.prototype.receive = function(channel, cb){
             cb({});
         }
         else {
-            cb(msgOrFalse);
+            const request = me.deserialize(msgOrFalse.content);
+            cb(request);
         }
     });
 };
