@@ -2,7 +2,8 @@
 
 var amqp = require('amqplib/callback_api');
 
-const exchangeName = "practical-messaging-datatype";
+const exchangeName = "practical-messaging-invalid-message";
+const invalidMessageExchangeName = "practical-message-invalid";
 
 var afterChannelOpened  = function(cb){
     var me = this;
@@ -27,7 +28,9 @@ var afterChannelOpened  = function(cb){
 
             });
 
-            channel.assertQueue(me.queueName, {durable: false, exclusive: false, autoDelete:false}, function(err,ok){
+            let invalidQueueName = "invalid." + me.queueName;
+
+            channel.assertQueue(me.queueName, {durable:false, exclusive:false, autoDelete:false, deadLetterExchange:invalidMessageExchangeName, deadLetterRoutingKey:invalidQueueName }, function(err,ok){
                 if (err){
                     console.error("AMQP", err.message);
                     throw err;
@@ -42,6 +45,26 @@ var afterChannelOpened  = function(cb){
                 }
                 else{
                     cb(channel);
+                }
+            });
+
+            channel.assertExchange(invalidMessageExchangeName, 'direct', {durable:true}, function(err, okj){
+                if (err){
+                    console.error("AMQP", err.message);
+                    throw err;
+                }
+            });
+
+            channel.assertQueue(invalidQueueName, {durable:true, exclusive:false, autoDelete:false}, function(err,ok){
+                if (err){
+                    console.error("AMQP". err.message);
+                    throw err;
+                }
+            });
+
+            channel.bindQueue(invalidQueueName, invalidMessageExchangeName, invalidQueueName, {}, function(err, ok){
+                if (err){
+                    console.error("AMQP", err.message);
                 }
             });
 
@@ -100,7 +123,7 @@ Consumer.prototype.afterChannelOpened = afterChannelOpened;
 //cb a callback indicating success or failure
 Consumer.prototype.receive = function(channel, cb){
     var me = this;
-    channel.get(this.queueName, {noAck:true}, function(err, msgOrFalse){
+    channel.get(this.queueName, {noAck:false}, function(err, msgOrFalse){
         if(err){
             console.error("AMQP", err.message);
         }
@@ -108,8 +131,15 @@ Consumer.prototype.receive = function(channel, cb){
             cb({});
         }
         else {
-            const request = me.deserialize(msgOrFalse.content);
-            cb(request);
+            try {
+                const request = me.deserialize(msgOrFalse.content);
+                cb(null, request);
+                channel.ack(msgOrFalse);
+            }
+            catch(e){
+                channel.nack(msgOrFalse, false, false);
+                cb(e, null);
+            }
         }
     });
 };
