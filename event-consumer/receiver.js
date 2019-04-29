@@ -5,7 +5,7 @@ var greetingLib = require("./greetings.js");
 
 var done = false;
 
-const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.guaranteed." + new greetingLib.Greetings().constructor.name, "amqp://guest:guest@localhost:5672", function(message){
+const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.event." + new greetingLib.Greetings().constructor.name, "amqp://guest:guest@localhost:5672", function(message){
     const greeting = new greetingLib.Greetings("");
     JSON.parse(message, function(key, value) {
         greeting.salutation = value;
@@ -13,16 +13,17 @@ const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.guaranteed
     return greeting;
 });
 
-console.log("Preparing to receive message from consumers. Type CTRL + C to exit");
+console.log("Preparing to receive message from consumers. Type CRTL+C to exit");
 
 dataTypeChannel.afterChannelOpened(function(channel){
-    dataTypeChannel.receive(channel, function(err, greeting){
-        if (err === null) {
-            console.log('Received Msg: %s', greeting.salutation.toString());
+    dataTypeChannel.consume(channel, function(err, greeting){
+        if (err) {
+            console.error("AMQP", err.message);
+            throw err;
         }
         else{
-            console.error("AMQP", err.message);
-        }
+            console.log('Received Msg: %s', greeting.salutation.toString());
+       }
     })
 });
 
