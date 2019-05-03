@@ -28,6 +28,13 @@ var afterChannelOpened  = function(cb){
 
             });
 
+            channel.assertExchange(invalidMessageExchangeName, 'direct', {durable:true}, function(err, okj){
+                if (err){
+                    console.error("AMQP", err.message);
+                    throw err;
+                }
+            });
+
             let invalidQueueName = "invalid." + me.queueName;
 
             channel.assertQueue(me.queueName, {durable:false, exclusive:false, autoDelete:false, deadLetterExchange:invalidMessageExchangeName, deadLetterRoutingKey:invalidQueueName }, function(err,ok){
@@ -36,6 +43,19 @@ var afterChannelOpened  = function(cb){
                     throw err;
                 }
 
+            });
+
+           channel.assertQueue(invalidQueueName, {durable:true, exclusive:false, autoDelete:false}, function(err,ok){
+                if (err){
+                    console.error("AMQP". err.message);
+                    throw err;
+                }
+            });
+
+           channel.bindQueue(invalidQueueName, invalidMessageExchangeName, invalidQueueName, {}, function(err, ok){
+                if (err){
+                    console.error("AMQP", err.message);
+                }
             });
 
             channel.bindQueue(me.queueName, exchangeName, me.queueName, {}, function(err, ok){
@@ -47,33 +67,7 @@ var afterChannelOpened  = function(cb){
                     cb(channel);
                 }
             });
-
-            channel.assertExchange(invalidMessageExchangeName, 'direct', {durable:true}, function(err, okj){
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-            });
-
-            channel.assertQueue(invalidQueueName, {durable:true, exclusive:false, autoDelete:false}, function(err,ok){
-                if (err){
-                    console.error("AMQP". err.message);
-                    throw err;
-                }
-            });
-
-            channel.bindQueue(invalidQueueName, invalidMessageExchangeName, invalidQueueName, {}, function(err, ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                }
-            });
-
-
-            setTimeout(function() {
-                channel.close();
-                conn.close();
-            }, 500);
-        });
+       });
     });
 };
 

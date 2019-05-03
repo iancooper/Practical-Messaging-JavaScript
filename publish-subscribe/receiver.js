@@ -4,18 +4,18 @@ var pubSubLib =  require("./lib/pubsub/");
 
 var done = false;
 
-const pubSubCHannel = new pubSubLib.PubSub(true, "amqp://guest:guest@localhost:5672");
+const subscriberChannel = new pubSubLib.Subscriber("amqp://guest:guest@localhost:5672");
 
 console.log("Preparing to receive message from consumers");
 
-pubSubCHannel.afterChannelOpened(function(channel){
-    pubSubCHannel.consume(channel, function(err, msg){
+subscriberChannel.afterChannelOpened(function(channel){
+    subscriberChannel.consume(channel, function(err, msg){
         if (err) {
             console.error("AMQP", err.message);
             throw err;
         }
         else{
-            console.log('Received Msg: %s', msg);
+            console.log('Received Msg: %s', msg.content.toString());
        }
     })
 });

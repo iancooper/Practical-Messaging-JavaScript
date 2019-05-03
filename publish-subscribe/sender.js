@@ -4,12 +4,12 @@ var pubSubLib =  require("./lib/pubsub/");
 
 var done = false;
 
-const pubSubCHannel = new pubSubLib.PubSub(false, "amqp://guest:guest@localhost:5672");
+const publisherChannel = new pubSubLib.Publisher("amqp://guest:guest@localhost:5672");
 
 console.log("Preparing to send message to consumers");
 
-pubSubCHannel.afterChannelOpened(function(channel){
-    pubSubCHannel.send(channel,"Hello World", function(){
+publisherChannel.afterChannelOpened(function(channel){
+    publisherChannel.send(channel,"Hello World", function(){
         console.log("Message sent!");
         done = true;
     })
