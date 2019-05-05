@@ -11,7 +11,7 @@ const filter = new dataTypeLib.Filter(
     function(message){
         const greeting = new greetingLib.Greetings("");
         JSON.parse(message, function(key, value) {
-            greeting.salutation = value;
+            greeting[key] = value;
         });
         return greeting;
     },

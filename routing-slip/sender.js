@@ -5,9 +5,8 @@ var greetingLib = require("./model");
 
 var done = false;
 
-var greeting = new greetingLib.Greetings("Hello World");
 
-const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.pipes." + greeting.constructor.name, "amqp://guest:guest@localhost:5672", function(message){
+const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.slip.Greeting", "amqp://guest:guest@localhost:5672", function(message){
     return JSON.stringify(message);
 });
 
@@ -17,15 +16,16 @@ dataTypeChannel.afterChannelOpened(function(channel){
     let counter = 0;
     (function loop () {
         counter = counter + 1;
+
         const greeting = new greetingLib.Greetings("Hello World " + "#" + counter);
+        greeting.steps.push(new dataTypeLib.Step(1, "practical.messaging.slip.EnrichedGreeting"));
+
         dataTypeChannel.send(channel, greeting, function () {
             console.log("Message " + counter + " sent!");
         });
 
         setTimeout(loop, 1000)
     })();
-
-
 });
 
 

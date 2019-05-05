@@ -14,7 +14,8 @@ const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.event." + 
 console.log("Preparing to send message to consumers");
 
 dataTypeChannel.afterChannelOpened(function(channel){
-    dataTypeChannel.send(channel,"Hello World", function(){
+    const greeting = new greetingLib.Greetings("Hello World");
+    dataTypeChannel.send(channel, greeting, function(){
         console.log("Message sent!");
         done = true;
     })

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 var dataTypeLib =  require("./lib/data-type-channel/");
-var greetingLib = require("./greetings.js");
+var greetingLib = require("./model");
 
 var done = false;
 
-const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.event." + new greetingLib.Greetings().constructor.name, "amqp://guest:guest@localhost:5672", function(message){
-    const greeting = new greetingLib.Greetings("");
+const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.slip.EnrichedGreeting", "amqp://guest:guest@localhost:5672", function(message){
+    const greeting = new greetingLib.EnrichedGreeting();
     JSON.parse(message, function(key, value) {
         greeting[key] = value;
     });
@@ -22,7 +22,7 @@ dataTypeChannel.afterChannelOpened(function(channel){
             throw err;
         }
         else{
-            console.log('Received Msg: %s', greeting.salutation.toString());
+            console.log('Received Msg: %s', greeting.greet());
        }
     })
 });
