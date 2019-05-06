@@ -28,14 +28,11 @@ Publisher.prototype.afterChannelOpened = function(cb){
                 throw err;
             }
 
-            //We are using a fanout exchange which deliver any message sent to it to all queues bound, regardless of routing key
-            channel.assertExchange(exchangeName, 'fanout', {durable:true}, function (err, ok) {
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
+            //TODO: create a fanout exchange
+                //TODO: On success call the callback with the channel
 
-                cb(channel);
+
+            //TODO: We are using a fanout exchange which deliver any message sent to it to all queues bound, regardless of routing key
 
                 setTimeout(function() {
                     channel.close();
@@ -53,13 +50,8 @@ Publisher.prototype.afterChannelOpened = function(cb){
 //cb a callback indicating success or failure
 //note how we don't publish to a key, everyone on the exchange gets the message
 Publisher.prototype.send = function(channel, message, cb){
-    channel.publish(exchangeName, "", Buffer.from(message), {}, function(err,ok){
-       if (err){
-            console.error("AMQP", err.message);
-            throw err;
-        }
-        cb()
-    });
+    //TODO: publish with no routing key
+        //TODO: On success, callback
 };
 
 function Subscriber(url){
@@ -111,33 +103,13 @@ Subscriber.prototype.afterChannelOpened = function(cb){
 
             });
 
+            //TODO: create a queue
             //we don't pass a queuename, as we are not sharing the queue with others, so we just let RMQ give us
-            //a random queue name
-            channel.assertQueue('', {
-                durable: false,
-                exclusive: false,
-                autoDelete: false
-            }, function (err, ok) {
-                if (err) {
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-                else{
-                    me.queueName = ok.queue;
-                }
+            //a random queue name (hint you can pull it off the ok object
 
-            });
 
-            // we can bind the queue to an empty routing key because there is no routing on a fanout exchange
-            channel.bindQueue(me.queueName, exchangeName, '', {}, function (err, ok) {
-                if (err) {
-                    console.error("AMQP", err.message);
-                    throw err;
-                } else {
-                    cb(channel);
-                }
-           });
-        });
+            //TODO: we can bind the queue to an empty routing key because there is no routing on a fanout exchange
+       });
     });
 };
 

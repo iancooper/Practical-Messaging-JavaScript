@@ -94,44 +94,14 @@ Producer.prototype.afterChannelOpened = afterChannelOpened;
 Producer.prototype.call = function(channel, request, cb){
     var me = this;
 
-    //create a callback queue, it should auto-delete as it dies once we have a reply
-    channel.assertQueue(me.callbackQueueName, {durable:false, exclusive:true}, function(err,ok){
-        if (err){
-            console.error("AMQP", err.message);
-            throw err;
-        }
-        else {
-            me.callbackQueueName = ok.queue;
-            channel.bindQueue(me.callbackQueueName, exchangeName, me.callbackQueueName, {}, function(err, ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                }
-                else{
-                    channel.publish(exchangeName, me.queueName, Buffer.from(me.serialize(request)), {persistent:true, replyTo: me.callbackQueueName}, function(err,ok){
-                    if (err){
-                        console.error("AMQP", err.message);
-                        throw err;
-                    } else {
-                        channel.prefetch(1);
-                        channel.consume(me.callbackQueueName, function(msg){
-                            try {
-                                const request = me.deserialize(msg.content);
-                                cb(null, request);
-                                channel.ack(msg);
-                            }
-                            catch(e){
-                                channel.nack(msg, false, false);
-                                cb(e, null);
-                            }
-                        }, {noAck:false});
-                    } });
-                }
-           });
-        }
-    });
-
-    //need to tell the consumer how to reply to us
-
+    //TODO: create a callback queue, it should auto-delete as it dies once we have a reply
+    //TODO: Let RMQ generate a queue name, and grab off the ok
+    //TODO; Bind our callback queue to our exchange
+    //TODO: On success, publish  thre request to the channel and set the reply to property to our callback queue
+    //TODO: On success, consume from out own callback queue
+    //TODO: deserialize the response
+    //TODO: call our callback with the response
+    //TODO: ack the response
 };
 
 //queueName - the name of the queue we want to create, which ia also the routing key in the default exchange
@@ -159,17 +129,10 @@ Consumer.prototype.consume = function(channel, cb){
             const response = cb(null, request);
             channel.ack(msg);
 
-            const responder = new Responder(msg.properties.replyTo, me.brokerUrl, me.serialize);
-            responder.respond(channel, response, function(err, ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-                else {
-                    console.log("Response sent to %s", msg.content.toString())
-                }
-            });
-        }
+
+            //TODO: Create  a responder on the reply to queue from the msg properties
+            //TODO: call respond to give it our response
+       }
         catch(e){
             channel.nack(msg, false, false);
             cb(e, null);
