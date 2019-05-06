@@ -5,16 +5,15 @@ var greetingLib = require("./greetings.js");
 
 var done = false;
 
-var greeting = new greetingLib.Greetings("Hello World");
-
-const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.datatype." + greeting.constructor.name, "amqp://guest:guest@localhost:5672", function(message){
+const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.datatype.Greetings", "amqp://guest:guest@localhost:5672", function(message){
     return JSON.stringify(message);
 });
 
 console.log("Preparing to send message to consumers");
 
 dataTypeChannel.afterChannelOpened(function(channel){
-    dataTypeChannel.send(channel,"Hello World", function(){
+    var greeting = new greetingLib.Greetings("Hello World");
+    dataTypeChannel.send(channel, greeting, function(){
         console.log("Message sent!");
         done = true;
     })
