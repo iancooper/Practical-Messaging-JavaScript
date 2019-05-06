@@ -166,23 +166,19 @@ RoutingStep.prototype.doStep = function(channel, inCb, outCb){
     channel.prefetch(1);
     channel.consume(me.queueName , function(msg){
         try {
-            const request = me.deserialize(msg.content);
+            //TODO: deserialize the message
 
-            const nextStep = request.currentStep + 1;
-            const routingSlip = request.steps[nextStep];
-            const outputRoutingKey= routingSlip.routingKey;
-            const output = inCb(null, request);
+            //TODO: increment the step counter
+            //TODO: get the routing slip for the next steo
+            //TODO: get the destiatiom routing key from the routing slip
+            //TODO: Call the in call back to convert the request to a response
 
-            output.currentStep = nextStep;
+            //TODO: Set the next step
 
-            channel.ack(msg);
+            //TODO: act the message
 
-            channel.publish(exchangeName, outputRoutingKey, Buffer.from(me.serialize(output)), {persistent:true}, function(err,ok){
-                if (err) {
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-                outCb(null, output);
+            //TODO: publish the message
+                //TODO: On a publish call the Out call back
             });
         }
         catch(e){

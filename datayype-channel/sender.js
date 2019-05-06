@@ -8,7 +8,7 @@ var done = false;
 var greeting = new greetingLib.Greetings("Hello World");
 
 const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.datatype." + greeting.constructor.name, "amqp://guest:guest@localhost:5672", function(message){
-    return JSON.stringify(message);
+    //TODO: serialise the message
 });
 
 console.log("Preparing to send message to consumers");

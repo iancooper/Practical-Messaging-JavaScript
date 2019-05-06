@@ -108,7 +108,7 @@ Consumer.prototype.receive = function(channel, cb){
             cb({});
         }
         else {
-            const request = me.deserialize(msgOrFalse.content);
+            //TODO: Call the deserialize method registered  for this channel
             cb(request);
         }
     });

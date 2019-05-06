@@ -6,11 +6,7 @@ var greetingLib = require("./greetings.js");
 var done = false;
 
 const dataTypeChannel = new dataTypeLib.Consumer("practical.messaging.datatype." + new greetingLib.Greetings().constructor.name, "amqp://guest:guest@localhost:5672", function(message){
-    const greeting = new greetingLib.Greetings("");
-    JSON.parse(message, function(key, value){
-        greeting.salutation = value;
-    });
-    return greeting;
+//TODO: deserialize the message
 });
 
 console.log("Preparing to receive message from consumers");

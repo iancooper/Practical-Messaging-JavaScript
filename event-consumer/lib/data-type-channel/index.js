@@ -117,18 +117,8 @@ Consumer.prototype.afterChannelOpened = afterChannelOpened;
 //cb a callback indicating success or failure
 Consumer.prototype.consume = function(channel, cb){
     var me = this;
-    channel.prefetch(1);
-    channel.consume(me.queueName, function(msg){
-        try {
-            const request = me.deserialize(msg.content);
-            cb(null, request);
-            channel.ack(msg);
-        }
-        catch(e){
-            channel.nack(msg, false, false);
-            cb(e, null);
-        }
-    }, {noAck:false});
+    //TODO: prefetch only one message
+    //TODO: use consumer to wait to for a message
 };
 
 

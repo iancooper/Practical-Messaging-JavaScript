@@ -28,31 +28,10 @@ P2P.prototype.afterChannelOpened = function(cb){
                 throw err;
             }
 
-            //we don't usually use this for point-to-point which can be the default exchange
-            channel.assertExchange(exchangeName, 'direct', {durable:true}, function (err, ok) {
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-                
-            });
 
-            channel.assertQueue(me.queueName, {durable: false, exclusive: false, autoDelete:false}, function(err,ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-
-            });
-
-            //if we had used the default exchange, we always have a routing key equal to queue name,
-            //which would be a more idiomatic way of representing point-to-point
-            channel.bindQueue(me.queueName, exchangeName, me.queueName, {}, function(err, ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-            });
+            //TODO: declare a non-durable direct exchange via the channel
+            //TODO: declare a non-durable queue. non-exc;usive, that does not auto-delete. Use _queuename
+            //TODO: bind _queuename to _routingKey on the exchange
 
             cb(channel);
 
@@ -69,29 +48,14 @@ P2P.prototype.afterChannelOpened = function(cb){
 //message - the data to serialize
 //cb a callback indicating success or failure
 P2P.prototype.send = function(channel, message, cb){
-    channel.publish(exchangeName, this.queueName, Buffer.from(message), {}, function(err,ok){
-       if (err){
-            console.error("AMQP", err.message);
-            throw err;
-        }
-        cb()
-    });
+    //TODO: Publish on the exchange using the routing key
+    //call the callback once published
 };
 
 //channel - the RMQ channel to make requests on
 //cb a callback indicating success or failure
 P2P.prototype.receive = function(channel, cb){
-    channel.get(this.queueName, {noAck:true}, function(err, msgOrFalse){
-        if(err){
-            console.error("AMQP", err.message);
-        }
-        else if (msgOrFalse === false){
-            cb({});
-        }
-        else {
-            cb(msgOrFalse);
-        }
-    });
+    ///TODO: Use geg to retrieve a message (not consume)
 };
 
 

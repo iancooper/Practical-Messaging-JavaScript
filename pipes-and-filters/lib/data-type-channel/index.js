@@ -147,17 +147,13 @@ Filter.prototype.afterChannelOpened = afterChannelOpened;
 Filter.prototype.filter = function(channel, inCb, outCb){
     var me = this;
     channel.prefetch(1);
-    channel.consume(me.inputQueueName, function(msg){
+    //TODO: Consumer from the input queue
         try {
-            const request = me.deserialize(msg.content);
-            const output = inCb(null, request);
-            channel.ack(msg);
-            channel.publish(exchangeName, me.outputRoutingKey, Buffer.from(me.serialize(output)), {persistent:true}, function(err,ok){
-                if (err) {
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-                outCb(output);
+            //TODO: Deserialize the request
+            //TODO: Call the callback to transform the request into a response
+            //TODO: Ack the message to clear from the queue
+            //TODO: Publish the response to the output routing key
+                //TODO: In the publish callback, pass the resonse to our callback
             });
         }
         catch(e){

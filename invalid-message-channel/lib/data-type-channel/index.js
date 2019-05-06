@@ -30,7 +30,7 @@ var afterChannelOpened  = function(cb){
 
             let invalidQueueName = "invalid." + me.queueName;
 
-            channel.assertQueue(me.queueName, {durable:false, exclusive:false, autoDelete:false, deadLetterExchange:invalidMessageExchangeName, deadLetterRoutingKey:invalidQueueName }, function(err,ok){
+            channel.assertQueue(me.queueName, {durable:false, exclusive:false, autoDelete:false, /* TODO: set the invalid meessage queue */ function(err,ok){
                 if (err){
                     console.error("AMQP", err.message);
                     throw err;
@@ -48,25 +48,11 @@ var afterChannelOpened  = function(cb){
                 }
             });
 
-            channel.assertExchange(invalidMessageExchangeName, 'direct', {durable:true}, function(err, okj){
-                if (err){
-                    console.error("AMQP", err.message);
-                    throw err;
-                }
-            });
-
-            channel.assertQueue(invalidQueueName, {durable:true, exclusive:false, autoDelete:false}, function(err,ok){
-                if (err){
-                    console.error("AMQP". err.message);
-                    throw err;
-                }
-            });
-
-            channel.bindQueue(invalidQueueName, invalidMessageExchangeName, invalidQueueName, {}, function(err, ok){
-                if (err){
-                    console.error("AMQP", err.message);
-                }
-            });
+            //declare a queue for invalid messages off an invalid message exchange
+            //messages that we nack without requeue will go here
+            // TODO; Declare an invalid message queue exchange, direct and durable
+            // TODO: declare an invalid message queue, durable
+            // TODO: bind the queue to the exchange
 
 
             setTimeout(function() {
@@ -137,7 +123,7 @@ Consumer.prototype.receive = function(channel, cb){
                 channel.ack(msgOrFalse);
             }
             catch(e){
-                channel.nack(msgOrFalse, false, false);
+                //TODO: Nack and force a requeue
                 cb(e, null);
             }
         }
