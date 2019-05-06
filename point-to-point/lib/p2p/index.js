@@ -51,16 +51,11 @@ P2P.prototype.afterChannelOpened = function(cb){
                 if (err){
                     console.error("AMQP", err.message);
                     throw err;
+                } else {
+                    cb(channel);
                 }
             });
-
-            cb(channel);
-
-            setTimeout(function() {
-                channel.close();
-                conn.close();
-            }, 500);
-        });
+       });
     });
 };
 
