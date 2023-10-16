@@ -20,9 +20,7 @@
   },
   "homepage": "https://github.com/iancooper/Practical-Messaging-JavaScript#readme",
   "dependencies": {
-    "amqplib": "^0.5.3"
-  },
-  "devDependencies": {}
+    "amqplib": "^0.5.3",
+    "kafkajs": "^2.2.4"
+  }
 }
-
-
