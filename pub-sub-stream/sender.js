@@ -18,7 +18,7 @@ const produceMessage = async (name, biography) => {
     await producer.connect();
 
     await producer.send({
-        topic: 'biography',
+        topic: 'Pub-Sub-Stream-Biography',
         messages: [
             {
                 key: name,
