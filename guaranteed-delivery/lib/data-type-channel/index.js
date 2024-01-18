@@ -97,7 +97,7 @@ Producer.prototype.afterChannelOpened = afterChannelOpened;
 //cb a callback indicating success or failure
 Producer.prototype.send = function(channel, request, cb){
     var me = this;
-    channel.publish(exchangeName, this.queueName, Buffer.from(me.serialize(request)), {/*set the props for persistent messages*/}, function(err,ok){
+    channel.publish(exchangeName, this.queueName, Buffer.from(me.serialize(request)), {/*TODO: set the props for persistent messages*/}, function(err,ok){
        if (err){
             console.error("AMQP", err.message);
             throw err;

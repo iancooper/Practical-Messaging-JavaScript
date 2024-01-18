@@ -1,12 +1,11 @@
 const { Kafka } = require('kafkajs');
 const mysql = require('mysql2');
 
-const kafka = new Kafka({
-    clientId: 'biographies-consumer',
-    brokers: ['localhost:9092'], 
-});
+// TODO: Create a Kafka Factory (Hint: Kafka) and set
+// Client Id
+// Bootstrap server => localhost:9092
 
-const consumer = kafka.consumer({ groupId: 'biographies-group' });
+//TODO: Create a consumer from the factory - set the group id to 'biographies-group'
 
 const dbConnection = mysql.createConnection({
     host: 'localhost',
@@ -43,8 +42,9 @@ const saveBiographyToDb = (name, biography) => {
 };
 
 const runConsumerLoop = async () => {
-    await consumer.connect();
-    await consumer.subscribe({ topic: 'Pub-Sub-Stream-Biography', fromBeginning: true });
+
+    //TODO: Connect to the consumer
+    //TODO: subscribe the consumer to the 'Pub-Sub-Stream-Biography' topic, from the beginning
 
     await connectToDb();
 
@@ -55,7 +55,7 @@ const runConsumerLoop = async () => {
 
             try {
                 await saveBiographyToDb(name, biography);
-                await consumer.commitOffsets([{ topic, partition, offset: message.offset + 1 }]);
+                //TODO: Once we have saved the data away, commit the offset to Kafka
             } catch (error) {
                 console.error(`Error saving biography for ${name} to MySQL: ${error.message}`);
             }

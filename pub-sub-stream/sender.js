@@ -1,9 +1,8 @@
 const { Kafka } = require('kafkajs');
 
-const kafka = new Kafka({
-    clientId: 'biographies-producer',
-    brokers: ['localhost:9092'], // Update with your Kafka broker's address
-});
+// TODO: Create a Kafka Factory (Hint: Kafka) and set
+// Client Id
+// Bootstrap server => localhost:9092
 
 const biographies = [
     {name: "Clarissa Harlow", biography: "A young woman whose quest for virtue is continually thwarted by her family."},
@@ -13,21 +12,16 @@ const biographies = [
 ];
 
 const produceMessage = async (name, biography) => {
-    const producer = kafka.producer();
 
-    await producer.connect();
+    //TODO: Create a producer from the factory
 
-    await producer.send({
-        topic: 'Pub-Sub-Stream-Biography',
-        messages: [
-            {
-                key: name,
-                value: biography,
-            },
-        ],
-    });
+    //TODO: Connect to the broker
 
-    await producer.disconnect();
+    //TODO: Send a message to the Pub-Sub-Stream Biography topic
+    // With a message whose key is the name and value the biography
+
+    //TODO: Disconnect the producer
+
 };
 
 const main = async () => {
