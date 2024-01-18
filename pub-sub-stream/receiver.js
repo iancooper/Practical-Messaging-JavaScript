@@ -1,5 +1,5 @@
 const { Kafka } = require('kafkajs');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const kafka = new Kafka({
     clientId: 'biographies-consumer',
@@ -30,7 +30,7 @@ const connectToDb = () => {
 
 const saveBiographyToDb = (name, biography) => {
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO biographies (name, biography) VALUES (?, ?)';
+        const sql = 'INSERT INTO Biography (id, description) VALUES (?, ?)';
         dbConnection.query(sql, [name, biography], (err, results) => {
             if (err) {
                 reject(err);
