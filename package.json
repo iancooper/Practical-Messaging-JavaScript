@@ -22,6 +22,6 @@
   "dependencies": {
     "amqplib": "^0.9.0",
     "kafkajs": "^2.2.4",
-    "mysql": "^2.18.1"
+    "mysql2": "^3.7.1"
   }
 }
