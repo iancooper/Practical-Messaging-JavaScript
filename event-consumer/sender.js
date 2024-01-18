@@ -5,9 +5,7 @@ var greetingLib = require("./greetings.js");
 
 var done = false;
 
-var greeting = new greetingLib.Greetings("Hello World");
-
-const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.event." + greeting.constructor.name, "amqp://guest:guest@localhost:5672", function(message){
+const dataTypeChannel = new dataTypeLib.Producer("practical.messaging.event.Greetings", "amqp://guest:guest@localhost:5672", function(message){
     return JSON.stringify(message);
 });
 

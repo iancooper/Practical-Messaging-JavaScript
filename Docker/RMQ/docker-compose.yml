@@ -9,8 +9,18 @@ services:
     restart: on-failure
     volumes:
       - rabbitmq-home:/var/lib/rabbitmq
-    restart: on-failure
+
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"  
 
 volumes:
   rabbitmq-home:
     driver: local
+  mysql-data:
+    driver: local  
