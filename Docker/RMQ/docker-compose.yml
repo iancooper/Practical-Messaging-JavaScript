@@ -22,3 +22,5 @@ services:
 volumes:
   rabbitmq-home:
     driver: local
+  mysql-data:
+    driver: local  
