@@ -1,52 +1,52 @@
 const { Kafka } = require('kafkajs');
-const mysql = require('mysql2/promise'); // Use mysql2/promise for async/await support
+const mysql = require('mysql2');
 
 const kafka = new Kafka({
     clientId: 'biographies-consumer',
-    brokers: ['localhost:9092'], // Update with your Kafka broker's address
+    brokers: ['localhost:9092'], 
 });
 
 const consumer = kafka.consumer({ groupId: 'biographies-group' });
 
-const dbConnection = await mysql.createConnection({
+const dbConnection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
     database: 'Lookup',
 });
 
-/*
-const connectToDb = async () => {
-    try {
-        await dbConnection.connect();
-        console.log('Connected to MySQL database');
-    } catch (err) {
-        console.error(`Error connecting to MySQL database: ${err.message}`);
-        throw err;
-    }
+const connectToDb = () => {
+    return new Promise((resolve, reject) => {
+        dbConnection.connect((err) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log('Connected to MySQL database');
+                resolve();
+            }
+        });
+    });
 };
 
- */
-
-const saveBiographyToDb = async (name, biography) => {
-    try {
-        const [results] = await dbConnection.query(
-            'INSERT INTO Biography (name, biography) VALUES (?, ?)',
-            [name, biography]
-        );
-        console.log(`Biography for ${name} saved to MySQL database`);
-        return results;
-    } catch (err) {
-        console.error(`Error saving biography for ${name} to MySQL: ${err.message}`);
-        throw err;
-    }
+const saveBiographyToDb = (name, biography) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO Biography (id, description) VALUES (?, ?)';
+        dbConnection.query(sql, [name, biography], (err, results) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log(`Biography for ${name} saved to MySQL database`);
+                resolve(results);
+            }
+        });
+    });
 };
 
 const runConsumerLoop = async () => {
     await consumer.connect();
     await consumer.subscribe({ topic: 'Pub-Sub-Stream-Biography', fromBeginning: true });
 
-    //await connectToDb();
+    await connectToDb();
 
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
@@ -57,7 +57,7 @@ const runConsumerLoop = async () => {
                 await saveBiographyToDb(name, biography);
                 await consumer.commitOffsets([{ topic, partition, offset: message.offset + 1 }]);
             } catch (error) {
-                console.error(`Error handling message for ${name}: ${error.message}`);
+                console.error(`Error saving biography for ${name} to MySQL: ${error.message}`);
             }
         },
     });
