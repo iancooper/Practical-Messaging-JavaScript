@@ -1,0 +1,20 @@
+{
+  "name": "practical-messaging-03-streams",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Exercise 3: streams. See README.md -- package.json takes no comments, so anything worth saying about these dependencies is said there.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "sender": "node sender.js",
+    "receiver": "node receiver.js",
+    "stream-consumer": "node stream-consumer.js",
+    "check-domain": "node check-domain.js"
+  },
+  "dependencies": {
+    "amqplib": "2.0.1",
+    "@confluentinc/kafka-javascript": "1.10.1"
+  }
+}

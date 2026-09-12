@@ -1,0 +1,18 @@
+{
+  "name": "practical-messaging-02-failing-well",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Exercise 2: failing well. See README.md -- package.json takes no comments, so anything worth saying about these dependencies is said there.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "sender": "node sender.js",
+    "receiver": "node receiver.js",
+    "check-domain": "node check-domain.js"
+  },
+  "dependencies": {
+    "amqplib": "2.0.1"
+  }
+}
