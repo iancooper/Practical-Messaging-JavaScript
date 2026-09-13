@@ -4,19 +4,19 @@
  * Four queues now, because a message that is never going to be handled has more than one
  * place it can end up, and *which* place is how you find out what went wrong.
  *
- *   practical-messaging-failing-well              (direct)
- *     `-- failing-well.<T>                  the work
+ *   practical-messaging-streams              (direct)
+ *     `-- streams.<T>                  the work
  *            x-dead-letter-exchange:    ...dlx
- *            x-dead-letter-routing-key: retry.failing-well.<T>
+ *            x-dead-letter-routing-key: retry.streams.<T>
  *
- *   practical-messaging-failing-well.dlx          (direct)
- *     |-- retry.failing-well.<T>            work waiting to be tried again
+ *   practical-messaging-streams.dlx          (direct)
+ *     |-- retry.streams.<T>            work waiting to be tried again
  *     |      x-message-ttl:             5000
- *     |      x-dead-letter-exchange:    practical-messaging-failing-well
- *     |      x-dead-letter-routing-key: failing-well.<T>
+ *     |      x-dead-letter-exchange:    practical-messaging-streams
+ *     |      x-dead-letter-routing-key: streams.<T>
  *     |
- *     |-- invalid.failing-well.<T>          a body we could not read
- *     `-- dead.failing-well.<T>             work we retried and gave up on
+ *     |-- invalid.streams.<T>          a body we could not read
+ *     `-- dead.streams.<T>             work we retried and gave up on
  *
  * **The retry queue is the part worth understanding, because RabbitMQ does the work and you
  * do not.** Nothing consumes it, and every message in it has five seconds to live. So each
@@ -35,7 +35,7 @@
  * The two terminal queues should be empty. When they are not, that is the alert.
  */
 
-export const EXCHANGE_NAME = 'practical-messaging-failing-well';
+export const EXCHANGE_NAME = 'practical-messaging-streams';
 export const DEAD_LETTER_EXCHANGE_NAME = EXCHANGE_NAME + '.dlx';
 
 export const BROKER_URL = 'amqp://guest:guest@localhost:5672';
@@ -44,7 +44,7 @@ export const BROKER_URL = 'amqp://guest:guest@localhost:5672';
 export const RETRY_DELAY_MS = 5000;
 
 export function routingKeyFor(messageClass) {
-  return 'failing-well.' + messageClass.name;
+  return 'streams.' + messageClass.name;
 }
 
 export function queueNameFor(messageClass) {
