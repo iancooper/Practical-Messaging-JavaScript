@@ -1,0 +1,22 @@
+{
+  "name": "practical-messaging-04-lookup",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Exercise 4: the lookup. Note the dependencies -- they are exercise 3's, unchanged. The local copy is SQLite, and SQLite is node:sqlite, which ships with Node: no package, no native addon, nothing to install. Node 22.5 is where node:sqlite arrived, which is why 'engines' moved. See README.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "sender": "node sender.js",
+    "receiver": "node receiver.js",
+    "stream-consumer": "node stream-consumer.js",
+    "price-consumer": "node price-consumer.js",
+    "price-seeder": "node price-seeder.js",
+    "check-domain": "node check-domain.js"
+  },
+  "dependencies": {
+    "amqplib": "2.0.1",
+    "@confluentinc/kafka-javascript": "1.10.1"
+  }
+}

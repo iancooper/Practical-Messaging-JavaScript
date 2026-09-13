@@ -77,3 +77,8 @@ typings/
 
 # Session working state, deliberately untracked.
 PROMPT.md
+
+# Exercise 4: the local copy of the catalogue. A working file, not source.
+prices.db
+prices.db-wal
+prices.db-shm
