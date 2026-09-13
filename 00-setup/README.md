@@ -13,8 +13,14 @@ them, proves you can reach both, and builds all three exercises. It is safe to r
 | `docker-compose.yml` | RabbitMQ and Kafka, one container each |
 | `prereqs.sh` | pull, start, and check everything. **Do this at home** |
 | `queues.sh` | RabbitMQ: ready, unacked and consumers per queue |
+| `peek.sh` | RabbitMQ: one message, its body and its headers — and puts it back |
 | `lag.sh` | Kafka: current offset, log end and lag per partition |
-| `reset.sh` | delete the exercises' queues, topic and consumer group |
+| `reset.sh` | delete the exercises' queues, topic and consumer group. **Stop your consumers first** |
+
+**`reset.sh` deletes those queues rather than emptying them**, which matters because the
+consumer is the only thing that declares them. Stop your receiver and your stream consumer,
+run it, and start them again — a consumer left polling a queue that has just been deleted is
+a confusing five minutes, and none of it is about messaging.
 
 ## Starting and stopping ##
 
@@ -74,7 +80,19 @@ more than one partition to make its point.
 
 ## If something is already on those ports ##
 
-The file wants **5672** and **15672** (RabbitMQ) and **9092** (Kafka). If you already run either
-broker locally, stop your containers for the day — or change the ports here and in the two
-constants the code uses: `simple-messaging/channel.js` (RabbitMQ host) and `simple-eventing/stream.js`
-(`BootstrapServers`).
+The file wants **5672** and **15672** (RabbitMQ) and **9092** (Kafka). **If you already run
+either broker locally, stop your containers for the day.** That really is the cheaper answer,
+and here is why moving the exercises instead is worse than it looks:
+
+- **There is one copy of the gateway per exercise directory**, so the RabbitMQ address in
+  `simple-messaging/` exists three times — once in `01-message-pump`, once in `02-failing-well`,
+  once in `03-streams` — and changing the first one does not change the other two. The Kafka
+  address in `simple-eventing/` exists once, in `03-streams`.
+- **The RabbitMQ address is a URL and it does name the port**, which makes this the easier
+  of the two: `BROKER_URL` in `simple-messaging/channel.js` carries `localhost:5672` in one string.
+  Three copies of that string, and you are done.
+- **`queues.sh`, `peek.sh` and `reset.sh` have 15672 in them**, because the management API is
+  where they get their numbers. Move the console and you move those too.
+
+If you have to do it, **do it at home**, and run one probe from exercise 1 afterwards to prove
+it took.

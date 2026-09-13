@@ -32,8 +32,10 @@ If `prereqs.sh` reports a failure, bring its output with you and we will sort it
 first coffee break rather than in the exercise slot.
 
 > **Already running RabbitMQ or Kafka on this machine?** The compose file wants ports 5672,
-> 15672 and 9092. Stop your own containers, or edit `00-setup/docker-compose.yml` and the two
-> `localhost:` constants in `simple-messaging/channel.js` and `simple-eventing/stream.js`.
+> 15672 and 9092, and **the answer that works is to stop your own containers for the day.**
+> Moving the exercises off those ports is not the one-line edit it looks like — see
+> *If something is already on those ports* in [`00-setup/README.md`](00-setup/README.md), and
+> do it at home rather than in the slot.
 
 ## On the day ##
 
@@ -94,7 +96,7 @@ either way, and they are the graded part — the part you will remember on Monda
 | | |
 |---|---|
 | `PROBE.md` | **the exercise.** Read this first |
-| `SOLUTION.md` | what the fix is, in prose, with the reasoning. Not code |
+| `SOLUTION.md` | what the fix is, in prose, with the reasoning. Never code — and in exercise 3, where there is nothing to fix, what the probes show |
 | `simple-messaging/` | the **messaging gateway** — the only code that knows which broker this is |
 | `simple-eventing/` | the same thing for Kafka, in exercise 3 |
 | `model/` | the domain: an order, a catalogue, a handler |
