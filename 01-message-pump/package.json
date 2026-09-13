@@ -5,7 +5,7 @@
   "description": "Exercise 1: the Message Pump. See README.md -- package.json takes no comments, so anything worth saying about these dependencies is said there.",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.5"
   },
   "scripts": {
     "sender": "node sender.js",

@@ -38,19 +38,22 @@ else bad "docker daemon is not running -- start Docker Desktop"; fi
 if command -v node >/dev/null 2>&1; then
   nodev=$(node -p 'process.versions.node')
   major=${nodev%%.*}
-  if [ "${major:-0}" -ge 20 ] 2>/dev/null; then ok "node v$nodev"
-  else bad "node v$nodev -- the exercises need Node 20 or later"; fi
+  # 22.5 is where node:sqlite arrived, and exercise 4 needs it. Below that the first three
+  # exercises still work, so this is the floor for the whole set rather than for the room.
+  if [ "${major:-0}" -ge 24 ] 2>/dev/null; then ok "node v$nodev"
+  elif [ "${major:-0}" -ge 22 ] 2>/dev/null; then note "node v$nodev -- works, but Node 24 LTS is the tested version"
+  else bad "node v$nodev -- the exercises need Node 22.5 or later, and Node 24 LTS is the tested version"; fi
 
-  # Exercise 3's Kafka client is a native addon. It ships prebuilt binaries for a fixed list
-  # of Node releases; on anything else npm compiles librdkafka from source, which needs a C++
-  # toolchain and about ten minutes. It does work -- it is just not something to discover at
-  # the venue. Node 22 LTS is what these exercises were written and measured against.
+  # Exercise 3's Kafka client is a native addon. It ships prebuilt binaries for a fixed list of
+  # Node releases; on anything else npm compiles librdkafka from source, which needs a C++
+  # toolchain and about ten minutes. That is slow rather than broken, so it is a note and not a
+  # failure -- but it is worth knowing before a venue's network is the thing you are waiting on.
   abi=$(node -p 'process.versions.modules')
   case "$abi" in
     108|115|120|127|131|137) ok "a prebuilt Kafka binary exists for node v$nodev" ;;
-    *) bad "no prebuilt Kafka binary for node v$nodev -- npm will build librdkafka from source (a C++ toolchain, ~10 minutes). Node 22 LTS is the tested version" ;;
+    *) note "no prebuilt Kafka binary for node v$nodev -- npm will build librdkafka from source (a C++ toolchain, ~10 minutes). It does work; Node 24 LTS is the fast path" ;;
   esac
-else bad "node not found -- install Node 20 or later"; fi
+else bad "node not found -- install Node 24 LTS"; fi
 
 if command -v npm >/dev/null 2>&1; then ok "npm $(npm --version)"
 else bad "npm not found -- it ships with Node"; fi
@@ -63,8 +66,16 @@ for spec in "5672:RabbitMQ (AMQP)" "15672:RabbitMQ (management console)" "9092:K
   port=${spec%%:*}; what=${spec#*:}
   if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
     owner=$(docker ps --format '{{.Names}}\t{{.Ports}}' | awk -v p=":$port->" 'index($0,p){print $1; exit}')
-    bad "port $port ($what) is already in use${owner:+ by container '$owner'}"
-    busy="yes"
+    case "$owner" in
+      # Our own brokers, already up. This script starts them itself and says it is safe to run
+      # repeatedly, so the second run must not report the first run's success as a failure --
+      # nor refuse to start brokers that are already started. Only a *foreign* holder is a problem.
+      practical-messaging-rmq|practical-messaging-kafka)
+        ok "port $port in use by '$owner' -- that is ours, and it is already running" ;;
+      *)
+        bad "port $port ($what) is already in use${owner:+ by container '$owner'}"
+        busy="yes" ;;
+    esac
   else
     ok "port $port free -- $what"
   fi

@@ -22,10 +22,14 @@ cd 00-setup && ./prereqs.sh
 Each exercise has its own `package.json`, so each gets its own `npm install`. Exercises 1 and 2
 need only `amqplib`, which is a few seconds. Exercise 3 adds the Kafka client, which is a
 native addon: on **Node 18 to 24** npm downloads a prebuilt binary and it is just as quick, and
-on anything newer it compiles librdkafka from source, which needs a C++ toolchain and about ten
-minutes. **Node 22 LTS is the version these exercises were written and measured against.**
+on **Node 25 and newer** it compiles librdkafka from source, which needs a C++ toolchain and
+about ten minutes. It does work -- it is simply not what you want to discover at a venue.
 
-You need **Docker** and **Node 20 or later**. That is all. No cloud account, no API key, and
+**Node 24 LTS is the version these exercises are written and measured against**, and it is the
+newest one with a prebuilt binary. Exercise 4 additionally needs **22.5 or later**, which is
+where `node:sqlite` arrived, so 24 covers the whole set.
+
+You need **Docker** and **Node 24 LTS or later**. That is all. No cloud account, no API key, and
 nothing to sign up for.
 
 If `prereqs.sh` reports a failure, bring its output with you and we will sort it out in the
