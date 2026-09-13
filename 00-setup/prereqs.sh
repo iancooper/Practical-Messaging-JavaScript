@@ -14,7 +14,13 @@ cd "$(dirname "$0")"
 pass=0; fail=0
 ok()   { printf '  \033[32mOK\033[0m    %s\n' "$1"; pass=$((pass+1)); }
 bad()  { printf '  \033[31mFAIL\033[0m  %s\n' "$1"; fail=$((fail+1)); }
+# Reports, and counts as neither. Exercise 4 is optional and taken home, so a delegate who is
+# never going to start it should not be told their setup is broken because of it.
+note() { printf '  \033[33mNOTE\033[0m  %s\n' "$1"; }
 step() { printf '\n\033[1m%s\033[0m\n' "$1"; }
+
+# Set by step 7. Reported either way, because silence about it would be worse than a FAIL.
+ex4="not checked"
 
 step "1. Tools"
 if command -v docker >/dev/null 2>&1; then ok "docker $(docker --version | sed 's/Docker version //;s/,.*//')"
@@ -106,7 +112,31 @@ if docker exec practical-messaging-kafka /opt/kafka/bin/kafka-broker-api-version
 then ok "kafka answering on localhost:9092"
 else bad "kafka not answering on port 9092"; fi
 
-step "6. The code runs"
+# Docker's Linux VM keeps its own clock and it drifts while the machine is asleep. Kafka
+# rejects any record whose timestamp is more than an hour ahead of the broker, and the error
+# it gives you is "Broker: Invalid timestamp" -- which does not mention clocks, does not
+# mention Docker, and sends people looking at their code. Check it here instead.
+step "6. The clocks agree"
+vm=$(docker exec practical-messaging-kafka date -u +%s 2>/dev/null || echo "")
+if [ -z "$vm" ]; then
+  bad "cannot read the container's clock -- is Kafka running?"
+else
+  skew=$(( $(date -u +%s) - vm )); [ "$skew" -lt 0 ] && skew=$(( -skew ))
+  if   [ "$skew" -le 60 ];  then ok "host and container clocks agree (${skew}s apart)"
+  elif [ "$skew" -lt 1800 ]; then note "clocks are ${skew}s apart and drifting -- resync before the course (see below)"
+  else
+    bad "clocks are ${skew}s apart -- Kafka will reject every record you publish"
+  fi
+  if [ "$skew" -gt 60 ]; then
+    printf '\n  Docker'"'"'s VM clock drifts while the machine sleeps. At an hour out, Kafka\n'
+    printf '  refuses every record with "Broker: Invalid timestamp", which says nothing\n'
+    printf '  about clocks. Resync it:\n'
+    printf '      docker run --rm --privileged alpine hwclock -s\n'
+    printf '  or restart Docker Desktop, and run this again.\n'
+  fi
+fi
+
+step "7. The code runs"
 for d in ../01-message-pump ../02-failing-well ../03-streams; do
   if [ -d "$d/node_modules" ]
   then ok "$(basename "$d") has its dependencies"
@@ -124,7 +154,21 @@ for d in ../01-message-pump ../02-failing-well ../03-streams; do
   else bad "$(basename "$d") has $broken file(s) that will not parse -- run 'node --check' on them to see why"; fi
 done
 
+# The take-home, reported but not counted -- see 'note' at the top of this file.
+broken=0
+for f in $(find ../04-lookup -name '*.js' -not -path '*/node_modules/*'); do
+  node --check "$f" >/dev/null 2>&1 || broken=$((broken+1))
+done
+if [ -d ../04-lookup/node_modules ] && [ "$broken" -eq 0 ]
+then ok "04-lookup is ready (optional, take home)"; ex4="parses, dependencies installed"
+elif [ ! -d ../04-lookup/node_modules ]
+then note "04-lookup has no node_modules -- it is optional, so this is not a failure"
+     ex4="needs 'npm install' in 04-lookup"
+else note "04-lookup has $broken file(s) that will not parse -- it is optional, so this is not a failure"
+     ex4="DOES NOT PARSE -- run 'node --check' on the files in 04-lookup to see why"; fi
+
 printf '\n\033[1m%d passed, %d failed\033[0m\n' "$pass" "$fail"
+printf 'Exercise 4 (optional, take home): %s\n' "$ex4"
 if [ "$fail" -eq 0 ]; then
   printf 'You are ready. Leave the containers up, or run "%s down" -- the volumes persist either way.\n' "$DC"
 else

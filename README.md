@@ -95,12 +95,13 @@ either way, and they are the graded part — the part you will remember on Monda
 
 | | |
 |---|---|
-| `PROBE.md` | **the exercise.** Read this first |
-| `SOLUTION.md` | what the fix is, in prose, with the reasoning. Never code — and in exercise 3, where there is nothing to fix, what the probes show |
+| `PROBE.md` | **the exercise.** Read this first — except in exercise 4, which is a specification rather than a defect, and keeps its probes in `README.md` |
+| `SOLUTION.md` | what the fix is, in prose, with the reasoning. Never code — in exercise 3, where there is nothing to fix, what the probes show; in exercise 4, where you built it yourself, what a good answer decided |
 | `simple-messaging/` | the **messaging gateway** — the only code that knows which broker this is |
 | `simple-eventing/` | the same thing for Kafka, in exercise 3 |
 | `model/` | the domain: an order, a catalogue, a handler |
-| `sender.js`, `receiver.js` | two console apps, plus `stream-consumer.js` in exercise 3 |
+| `local-copy/` | exercise 4 only: the local copy of somebody else's reference data, and the only place that knows it is SQLite |
+| `sender.js`, `receiver.js` | two console apps, plus `stream-consumer.js` in exercise 3, and a price seeder and a price consumer in exercise 4 |
 
 **These are not production code.** They omit most of the error handling production code would
 need, and they trade maintainability for focus. Where a file is *deliberately* wrong it says so
