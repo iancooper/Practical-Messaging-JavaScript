@@ -15,8 +15,9 @@
  * dependency on the broker whether or not a single byte of amqplib is loaded at run time,
  * and this script counts it.
  *
- * It is the same check, and it is still mechanical rather than a matter of opinion. Right now
- * it fails. Making it pass is part of exercise 1's fix.
+ * It is the same check, and it is still mechanical rather than a matter of opinion. In exercise 1
+ * it ships failing and making it pass is part of the fix; here it already passes, and running it
+ * after any change to model/ is how it stays that way.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';

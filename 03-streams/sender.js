@@ -6,6 +6,7 @@
  *     node sender.js poison         a SKU that is not in the catalogue (queue-side failure)
  *     node sender.js unmappable     a body that is not a PlaceOrder (queue-side failure)
  *     node sender.js flaky          a lookup that fails twice then works
+ *     node sender.js slow           an order whose lookup takes 30 seconds
  *     node sender.js bad-event      A RECORD THE STREAM CONSUMER CANNOT READ -- straight onto Kafka
  */
 import { OrderPlaced } from './model/order-placed.js';
